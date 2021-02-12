@@ -25,11 +25,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install PIP dependencies
-        run: pip install tox-travis codecov
-
       - name: Run tests
-        run: tox
+        run: |
+          pip install tox
+          tox
 
       - name: Code coverage upload
         uses: codecov/codecov-action@v1
