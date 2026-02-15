@@ -19,28 +19,34 @@ jobs:
           - '3.14'
 
     name: Python ${{ matrix.python-version }}
+
+    container:
+      image: python:${{ matrix.python-version }}-slim
+      options: --user root
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Install system dependencies
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends git
 
-      - name: Cached PIP dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.tox/python/.pytest_cache
-          key: pip-${{ matrix.python-version }}-${{ hashFiles('setup.py', 'tox.ini') }}
-          restore-keys: pip-${{ matrix.python-version }}-
-
-      - name: Install dependencies
-        run: pip install tox setuptools>=70
+      - name: Install Python dependencies
+        run: |
+          pip install --no-cache-dir -e . && \
+          pip install --no-cache-dir \
+            pytest \
+            pytest-cov \
+            pylama \
+            pytest-asyncio \
+            pytest-mock \
+            setuptools>=70
 
       - name: Run tests
-        run: tox
+        run: pytest --cov=dsmr_parser test
+
+      - name: Run pylama
+        run: pylama dsmr_parser test
 
       - name: Code coverage upload
         uses: codecov/codecov-action@v5
