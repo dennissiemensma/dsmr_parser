@@ -31,6 +31,12 @@ jobs:
         run: |
           apt-get update && apt-get install -y --no-install-recommends git
 
+      - name: Install build tools
+        run: |
+          pip install --no-cache-dir --upgrade \
+            setuptools>=70 \
+            wheel
+
       - name: Install Python dependencies
         run: |
           pip install --no-cache-dir -e . && \
@@ -39,8 +45,7 @@ jobs:
             pytest-cov \
             pylama \
             pytest-asyncio \
-            pytest-mock \
-            setuptools>=70
+            pytest-mock
 
       - name: Run tests
         run: pytest --cov=dsmr_parser test
